@@ -6,12 +6,13 @@ import {
 import Header from "./Header";
 import validateCredentials from "../utils/validate";
 import { auth } from "../utils/firebase";
-
+import { useNavigate } from "react-router-dom";
 const Login = () => {
   const [signInForm, setSignInForm] = useState(true);
   const [showErrorMessage, setShowErrorMessage] = useState("");
   const email = useRef(null);
   const password = useRef(null);
+  const navigate = useNavigate();
   const toggleSignForm = () => {
     setSignInForm(!signInForm);
   };
@@ -21,8 +22,7 @@ const Login = () => {
       password.current.value
     );
     setShowErrorMessage(errorMessage);
-
-    if (signInForm) {
+    if (errorMessage == null && signInForm) {
       signInWithEmailAndPassword(
         auth,
         email.current.value,
@@ -32,13 +32,14 @@ const Login = () => {
           // Signed in
           const user = userCredential.user;
           console.log(user);
+          navigate("/browse");
         })
         .catch((error) => {
           const errorCode = error.code;
           const errorMessage = error.message;
           setShowErrorMessage(errorCode + "-" + errorMessage);
         });
-    } else {
+    } else if (errorMessage == null && !signInForm) {
       createUserWithEmailAndPassword(
         auth,
         email.current.value,
@@ -48,6 +49,7 @@ const Login = () => {
           // Signed up
           const user = userCredential.user;
           console.log(user, "Authorised");
+          navigate("/browse");
         })
         .catch((error) => {
           const errorCode = error.code;
